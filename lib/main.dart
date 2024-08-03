@@ -68,50 +68,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       }
     }
   }
-  List<Map<String,dynamic>> toprateddata=[];
-  Future<void> topratedmovies() async{
-    var trendingresponse= await http.get(Uri.parse(toprated));
-    if (trendingresponse.statusCode==200){
-      var tempdata= jsonDecode(trendingresponse.body);
-      var topjson = tempdata["results"];
-      for (var i= 0;i<topjson.length;i++){
-        toprateddata.add({
-          "id": topjson[i]["id"],
-          "poster_path": topjson[i]["poster_path"],
-          "vote_average": topjson[i]["vote_average"],
-          "media_type": topjson[i]["media_type"],
-          "indexno": i,
-        });
-      }
-    }
-  }
-  List<Map<String,dynamic>> nowdata=[];
-  Future<void> nowmovies() async{
-    var trendingresponse= await http.get(Uri.parse(nowplaying));
-    if (trendingresponse.statusCode==200){
-      var tempdata= jsonDecode(trendingresponse.body);
-      var nowjson = tempdata["results"];
-      for (var i= 0;i<nowjson.length;i++){
-        nowdata.add({
-          "id": nowjson[i]["id"],
-          "poster_path": nowjson[i]["poster_path"],
-          "vote_average": nowjson[i]["vote_average"],
-          "media_type": nowjson[i]["media_type"],
-          "indexno": i,
-        });
-      }
-    }
-  }
   @override
   void initState(){
     super.initState();
       trendingmovies();
-     topratedmovies();
-     nowmovies();
   }
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -127,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 SizedBox(height: 20,),
                 Text("Trending Movies",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 30,color: Colors.red),),
@@ -135,13 +99,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                   child: CarouselSlider(
                       items: trendingdata.map((i){
                         return Container(
-                              width:MediaQuery.of(context).size.width ,
+                              width:MediaQuery.of(context).size.width*0.8 ,
                               margin: EdgeInsets.symmetric(horizontal: 5),
-                              decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
-                               child: Image.network('https://image.tmdb.org/t/p/w500${i['poster_path']}',fit: BoxFit.fill,),
+                              decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20),image: DecorationImage(image: NetworkImage('https://image.tmdb.org/t/p/w500${i['poster_path']}',),fit: BoxFit.fill,)),
+
                             );
                           }).toList(),
             options:CarouselOptions(
+              enlargeCenterPage: true,
                   height: 400,
               viewportFraction: 1,
               autoPlay: true,
@@ -149,47 +114,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               autoPlayAnimationDuration: Duration(seconds:3)
                 ) ),),
                 SizedBox(height: 20,),
-                Text("Now Playing",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 30,color: Colors.redAccent),),
+                NowPlaying(),
                 SizedBox(height: 20,),
-                Container(
-                  child: CarouselSlider(
-                      items: nowdata.map((i){
-                        return Container(
-                          width:MediaQuery.of(context).size.width ,
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
-                          child: Image.network('https://image.tmdb.org/t/p/w500${i['poster_path']}',fit: BoxFit.fill,),
-                        );
-                      }).toList(),
-                      options:CarouselOptions(
-                          height:250,
-                          viewportFraction: .5,
-                          autoPlay: true,
-                          autoPlayCurve: Curves.fastOutSlowIn,
-                          autoPlayAnimationDuration: Duration(seconds:3)
-                      ) ),),
-                SizedBox(height: 20,),
-                Text("Top Rated",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 30,color: Colors.redAccent),),
-                SizedBox(height: 20,),
-                Container(
-                  child: CarouselSlider(
-                      items: toprateddata.map((i){
-                        return Container(
-                          width:MediaQuery.of(context).size.width ,
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
-                          child: Image.network('https://image.tmdb.org/t/p/w500${i['poster_path']}',fit: BoxFit.fill,),
-                        );
-                      }).toList(),
-                      options:CarouselOptions(
-                          height:250,
-                          viewportFraction: .5,
-                          autoPlay: true,
-                          autoPlayCurve: Curves.fastOutSlowIn,
-                          autoPlayAnimationDuration: Duration(seconds:3)
-                      ) ),),
-                SizedBox(height: 30,),
-
+                TopRated(),
 
               ]),
           );}

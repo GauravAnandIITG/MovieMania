@@ -24,37 +24,86 @@ class _TopRatedState extends State<TopRated> {
       for (var i= 0;i<topjson.length;i++){
         toprateddata.add({
           "id": topjson[i]["id"],
+          "name": topjson[i]["name"],
           "poster_path": topjson[i]["poster_path"],
           "vote_average": topjson[i]["vote_average"],
-          "media_type": topjson[i]["media_type"],
+          "Date": topjson[i]["release_date"],
           "indexno": i,
         });
       }
+    } else{
+      print(trendingresponse.statusCode);
     }
   }
-  @override
-  void initState(){
-    super.initState();
-    topratedmovies();
-  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: CarouselSlider(
-          items: toprateddata.map((i){
-            return Container(
-              width:MediaQuery.of(context).size.width ,
-              margin: EdgeInsets.symmetric(horizontal: 5),
-              decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
-              child: Image.network('https://image.tmdb.org/t/p/w500${i['poster_path']}',fit: BoxFit.fill,),
-            );
-          }).toList(),
-          options:CarouselOptions(
-              height: 400,
-              viewportFraction: 1,
-              autoPlay: true,
-              autoPlayCurve: Curves.fastOutSlowIn,
-              autoPlayAnimationDuration: Duration(seconds:3)
-          ) ),);
+    return FutureBuilder(
+        future: topratedmovies(),
+        builder: (context,snapshot,){
+      if (snapshot.connectionState==ConnectionState.waiting){
+        return Center(
+          child: CircularProgressIndicator(
+            color:  Colors.redAccent,
+          ),
+        );
+      }
+      else{
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(padding: EdgeInsets.only(left: 10,right: 10,bottom: 40),
+            child: Text("Top Rated Movies",style: TextStyle(color: Colors.redAccent,fontSize: 30,fontWeight: FontWeight.bold),),
+            ),
+            Container(
+              height: 250,
+              child: ListView.builder(
+                physics: BouncingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: toprateddata.length,
+                  itemBuilder: (context,index){
+                  return GestureDetector(
+                    onTap: (){},
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius:BorderRadius.circular(15),
+                        image: DecorationImage(image: NetworkImage('https://image.tmdb.org/t/p/w500${toprateddata[index]["poster_path"]}'),fit: BoxFit.fill),
+
+                      ),
+                      margin: EdgeInsets.only(left: 12),
+                      width: 180,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Padding(padding: EdgeInsets.only(top: 3,left: 8),
+                            child: Text(toprateddata[index]["Date"],style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 15),),
+                          ),
+                          SizedBox(width: 8,),
+
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3,right: 8),
+                            child: Container(
+                              decoration: BoxDecoration(color: Colors.black.withOpacity(0.5),borderRadius: BorderRadius.circular(8)),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.star,color: Colors.yellow,),
+                                  Padding(padding: EdgeInsets.all(2),
+                                    child: Text(toprateddata[index]["vote_average"].toString(),style: TextStyle(color: Colors.white,),),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ),
+                  );
+                  }),
+            )
+          ],
+        );
+      }
+        });
   }
 }
